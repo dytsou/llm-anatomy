@@ -8,31 +8,21 @@ def main():
     model = LlamaModel("model")
     assert model.model is not None
 
-    # The famous question from Hitchhiker's Guide to the Galaxy
     prompt = (
         "the answer to the ultimate question of life, the universe, and everything is "
     )
 
-    # Tokenize the prompt - make sure we're using the same format as in correct.py
     tokens = tokenizer.encode(prompt)
     tokens = [model.bos_token] + tokens
 
     print(f"Tokens: {tokens}")
     print(f"Decoded tokens: {[tokenizer.decode([token]) for token in tokens]}")
 
-    # Generate embeddings
     embeddings = model.generate(tokens)
-
-    # Get the last token's embedding
     last_token_embedding = embeddings[-1]
-
-    # Project to vocabulary space
     logits = torch.matmul(last_token_embedding, model.model["output.weight"].T)
-
-    # Apply temperature scaling
     logits = logits / 1.0  # You can adjust temperature here
 
-    # Get the most likely next token
     next_token = torch.argmax(logits)
     next_token_id = int(next_token.item())
     next_token_text = tokenizer.decode([next_token_id])
@@ -41,7 +31,6 @@ def main():
     print(f"Model's continuation: {next_token_text}")
     print(f"Next token ID: {next_token_id}")
 
-    # Print top 5 most likely tokens for debugging
     top_k = 5
     top_logits, top_indices = torch.topk(logits, top_k)
     print("\nTop 5 predictions:")
